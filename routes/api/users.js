@@ -5,7 +5,6 @@ const bycrypt = require('bcryptjs');
 
 
 // Load User Model
-
 const User = require('../../models/User')
 
 
@@ -17,7 +16,7 @@ router.get('/test', (req, res) => res.json({ msg: "user works" }));
 
 
 // @route   GET api/users/register
-// @desc    Test post route
+// @desc    Register post route
 // @access  Public
 
 router.post('/register', (req, res) => {
@@ -51,6 +50,32 @@ router.post('/register', (req, res) => {
         });
       });
     });
+});
+
+
+// @route   GET api/users/login
+// @desc    Login post route
+// @access  Public
+
+router.post('/login', (req, res) => {
+
+  const {email, password} = req.body;
+
+  User.findOne({email})
+    .then(user => {
+
+      //Check if user exist
+      if(!user) return res.status(400).json({msg: "User not found"});
+
+      //Check if password is correct
+      bycrypt.compare(password, user.password)
+        .then(isMatch => {
+          if(!isMatch) return res.status(400).json({msg: "Password not correct"});
+          return res.json({msg: "Login successful"});
+        });
+
+    });
+
 });
 
 module.exports = router;
