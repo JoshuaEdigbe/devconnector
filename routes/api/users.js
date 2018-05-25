@@ -6,20 +6,23 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 
+const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
+
 // Load User Model
 const User = require("../../models/User");
-
-// @route   GET api/users/test
-// @desc    Test post route
-// @access  Public
-
-router.get("/test", (req, res) => res.json({ msg: "user works" }));
 
 // @route   GET api/users/register
 // @desc    Register post route
 // @access  Public
 
 router.post("/register", (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   const { email, password, name } = req.body,
     avatar = gravatar.url(email, {
       s: "200", //Size
@@ -57,16 +60,24 @@ router.post("/register", (req, res) => {
 // @access  Public
 
 router.post("/login", (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body);
   const { email, password } = req.body;
+
+  if (!isValid) return res.status(400).json(errors);
 
   User.findOne({ email }).then(user => {
     //Check if user exist
-    if (!user) return res.status(400).json({ msg: "User not found" });
+    if (!user) {
+      errors.email = "User not found";
+      return res.status(400).json(errors);
+    }
 
     //Check if password is correct
     bycrypt.compare(password, user.password).then(isMatch => {
-      if (!isMatch)
-        return res.status(400).json({ msg: "Password not correct" });
+      if (!isMatch) {
+        errors.password = "Password not correct";
+        return res.status(400).json(errors);
+      }
 
       // Sign Token
       const payload = { ...user };
