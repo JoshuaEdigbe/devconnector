@@ -1,3 +1,3 @@
-#DevConnector
+# DevConnector
 
-Linkedlin for devs
+Linkedin for devs
