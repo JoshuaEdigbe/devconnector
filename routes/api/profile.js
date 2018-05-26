@@ -9,6 +9,9 @@ const Profile = require("../../models/Profile");
 // Load User Model
 const User = require("../../models/User");
 
+// Load Validation
+const validateProfileInput = require("../../validation/profile");
+
 // @route   GET api/profile/test
 // @desc    Test post route
 // @access  Public
@@ -44,6 +47,14 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+
+    // Validate user inputs
+    console.log(req.body.handle)
+    const {errors, isValid} = validateProfileInput(req.body);
+
+    // Return errors if the inputs are not valid
+    if(!isValid) return res.status(400).json(errors);
+
     // Get fields from request object
     const user = req.user.id;
     const profileFields = {};
@@ -113,5 +124,42 @@ router.post(
     });
   }
 );
+
+// @route   GET api/profile/handle/:handle
+// @desc    Get profile by handle
+// @access  Public
+
+router.get("/handle/:handle", (req, res) => {
+  const errors = {};
+  Profile.findOne({ handle: req.params.handle })
+    .populate("user", ["name", "avatar"])
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = "User don't have profile";
+        res.status(400).json(errors);
+      }
+
+      res.json(profile);
+    })
+    .catch(err => res.status(404).json(err));
+});
+
+// @route   GET api/profile/user/:user_id
+// @desc    Get profile by user ID
+// @access  Public
+
+router.get("/user/:user_id", (req, res) => {
+  const errors = {};
+  Profile.findOne({ user: req.params.user_id })
+    .populate("user", ["name", "avatar"])
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = "User don't have profile";
+        res.status(400).json(errors);
+      }
+      res.json(profile);
+    })
+    .catch(err => res.status(404).json(err));
+});
 
 module.exports = router;
