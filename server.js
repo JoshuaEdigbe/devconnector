@@ -9,6 +9,25 @@ const posts = require("./routes/api/posts");
 
 const app = express();
 
+// CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  if ("OPTIONS" === req.method) {
+    res.send(204);
+  } else {
+    next();
+  }
+});
+
 // Body parser middlewaare
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -16,7 +35,7 @@ app.use(bodyParser.json());
 //DB Config
 const db = require("./config/keys").mongoURI;
 
-// Connect to MongoDB atabase
+// Connect to MongoDB database
 mongoose
   .connect(db)
   .then(() => console.log("Database connected"))
@@ -26,7 +45,7 @@ mongoose
 app.use(passport.initialize());
 
 // Passport config
-require('./config/passport')(passport);
+require("./config/passport")(passport);
 
 // Use Routes
 app.use("/api/users", users);

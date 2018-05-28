@@ -19,9 +19,8 @@ const User = require("../../models/User");
 router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
 
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
+
+  if(!isValid) return res.status(400).json(errors)
 
   const { email, password, name } = req.body,
     avatar = gravatar.url(email, {

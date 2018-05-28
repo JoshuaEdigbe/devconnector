@@ -20,12 +20,12 @@ module.exports = validateProfileInput = data => {
   status = !isEmpty(status) ? status : "";
   skills = !isEmpty(skills) ? skills : "";
 
-  if (Validation.isEmpty(handle)) {
-    errors.handle = "Status field is required";
+  if (!Validation.isLength(handle, { min: 2, max: 30 })) {
+    errors.handle = "Handle must be between 2 and 30 characters";
   }
-
-  if (!Validation.isLength(handle, { min: 2, max: 40 })) {
-    errors.handle = "Handle must be between 2 and 300 characters";
+  
+  if (Validation.isEmpty(handle)) {
+    errors.handle = "Handle field is required";
   }
 
   if (Validation.isEmpty(status)) {
