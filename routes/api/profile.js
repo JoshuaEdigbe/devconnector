@@ -9,10 +9,30 @@ const Profile = require("../../models/Profile");
 // Load User Model
 const User = require("../../models/User");
 
-// Load Validation
+// Load Validations
 const validateProfileInput = require("../../validation/profile");
 const validateExperienceInput = require("../../validation/experience");
 const validateEducationInput = require("../../validation/education");
+
+// @route   GET api/profile/all
+// @desc    Return all profiles
+// @access  Private
+
+router.get(
+  "/all",
+  (req, res) => {
+    const errors = {};
+    Profile.find()
+      .then(profiles => {
+        if (!profiles) {
+          errors.noprofiles = "There are no profiles";
+          return res.status(404).json(errors);
+        }
+        return res.json(profiles);
+      })
+      .catch(err => res.status(404).json(err));
+  }
+); 
 
 // @route   GET api/profile
 // @desc    Return user profile
@@ -119,6 +139,23 @@ router.post(
   }
 );
 
+// @route   DELETE api/profile
+// @desc    Delete user profile
+// @access  Private
+
+router.delete(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Profile.findOneAndRemove({ user: req.user.id }).then(() => {
+      User.findOneAndRemove({ _id: req.user.id }).then(() => {
+        res.json({ success: true });
+      });
+    });
+  }
+);
+
 // @route   GET api/profile/handle/:handle
 // @desc    Get profile by handle
 // @access  Public
@@ -220,13 +257,14 @@ router.post(
 
         // Add to experience array
         profile.education.unshift({ ...req.body });
+        
         profile.save().then(profile => res.json(profile));
       })
       .catch(err => res.status(404).json(err));
   }
 );
 
-// @route   POST api/profile/experience/:education_id
+// @route   POST api/profile/education/:education_id
 // @desc    Delete education by ID
 // @access  Private
 router.delete(
@@ -244,6 +282,5 @@ router.delete(
       .catch(err => res.status(404).json(err));
   }
 );
-
 
 module.exports = router;

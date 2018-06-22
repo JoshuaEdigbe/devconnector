@@ -25,7 +25,7 @@ module.exports = validateEducationInput = data => {
   }
 
   if (Validation.isEmpty(fieldofstudy)) {
-    errors.from = "Field of Study field is required";
+    errors.fieldofstudy = "Field of Study field is required";
   }
 
   return {

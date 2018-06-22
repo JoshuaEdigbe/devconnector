@@ -9,7 +9,7 @@ module.exports = validateRegisterInput = data => {
   name = !isEmpty(name) ? name : "";
   email = !isEmpty(email) ? email : "";
   password = !isEmpty(password) ? password : "";
-  confirmPassword = !isEmpty(confirmPassword) ? password : "";
+  confirmPassword = !isEmpty(confirmPassword) ? confirmPassword : "";
 
   if (!Validation.isLength(name, { min: 2, max: 30 })) {
     errors.name = "Name must be between 2 and 300 characters";
@@ -31,13 +31,15 @@ module.exports = validateRegisterInput = data => {
     errors.password = "Password length must be between 6 and 30";
   }
 
+  if (!Validation.equals(password, confirmPassword)) {
+    errors.confirmPassword = "Password must match";
+  }
+
   if (Validation.isEmpty(confirmPassword)) {
     errors.confirmPassword = "Confirmed Password is required";
   }
 
-  if (!Validation.equals(password, confirmPassword)) {
-    errors.confirmPassword = "Password must match";
-  }
+  
 
   return {
     errors,
