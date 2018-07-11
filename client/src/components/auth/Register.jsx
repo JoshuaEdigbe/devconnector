@@ -1,9 +1,10 @@
 import React from "react";
-
-import classnames from "classnames";
 import { connect } from "react-redux";
-import { registerUser } from "../../actions/authActions";
 import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+
+import { registerUser } from "../../actions/authActions";
+import TextFieldGroup from "../common/TextFieldGroup";
 
 class Register extends React.Component {
   state = {
@@ -11,14 +12,23 @@ class Register extends React.Component {
     email: "",
     password: "",
     confirmPassword: "",
-    errors: {}
+    errors: {},
+    loading: false
   };
+
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps) {
       this.setState({
         errors: nextProps.errors
       });
+
+      this.setState({ loading: false });
     }
   }
 
@@ -38,10 +48,19 @@ class Register extends React.Component {
       confirmPassword
     };
 
-    this.props.registerUser(newUser);
+    this.setState({ loading: true });
+
+    this.props.registerUser(newUser, this.props.history);
   };
   render() {
-    const { name, email, password, confirmPassword, errors } = this.state;
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+      errors,
+      loading
+    } = this.state;
     return (
       <div className="register">
         <div className="container">
@@ -52,73 +71,46 @@ class Register extends React.Component {
                 Create your DevConnector account
               </p>
               <form onSubmit={this.handleSubmit}>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.name
-                    })}
-                    placeholder="Name"
-                    name="name"
-                    value={name}
-                    onChange={this.handleChange}
-                  />
-                  {errors.name && (
-                    <span className="invalid-feedback">{errors.name}</span>
-                  )}
-                </div>
-                <div className="form-group">
-                  <input
-                    type="email"
-                    className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.email
-                    })}
-                    placeholder="Email Address"
-                    name="email"
-                    value={email}
-                    onChange={this.handleChange}
-                  />
-                  {errors.email && (
-                    <span className="invalid-feedback">{errors.email}</span>
-                  )}
-                  <small className="form-text text-muted">
-                    This site uses Gravatar so if you want a profile image, use
-                    a Gravatar email
-                  </small>
-                </div>
-                <div className="form-group">
-                  <input
-                    type="password"
-                    className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.password
-                    })}
-                    placeholder="Password"
-                    name="password"
-                    value={password}
-                    onChange={this.handleChange}
-                  />
-                  {errors.password && (
-                    <span className="invalid-feedback">{errors.password}</span>
-                  )}
-                </div>
-                <div className="form-group">
-                  <input
-                    type="password"
-                    className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.confirmPassword
-                    })}
-                    placeholder="Confirm Password"
-                    name="confirmPassword"
-                    value={confirmPassword}
-                    onChange={this.handleChange}
-                  />
-                  {errors.confirmPassword && (
-                    <span className="invalid-feedback">
-                      {errors.confirmPassword}
-                    </span>
-                  )}
-                </div>
-                <input type="submit" className="btn btn-info btn-block mt-4" />
+                <TextFieldGroup
+                  name="name"
+                  type="text"
+                  value={name}
+                  placeholder="Name"
+                  onChange={this.handleChange}
+                  error={errors.name}
+                />
+                <TextFieldGroup
+                  name="email"
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  error={errors.email}
+                  onChange={this.handleChange}
+                  info="This site uses Gravatar so if you want a profile image, use
+                  a Gravatar email"
+                />
+                <TextFieldGroup
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  error={errors.password}
+                  onChange={this.handleChange}
+                />
+
+                <TextFieldGroup
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  error={errors.confirmPassword}
+                  onChange={this.handleChange}
+                />
+                <input
+                  type="submit"
+                  className="btn btn-info btn-block mt-4"
+                  disabled={loading ? "disabled" : ""}
+                />
               </form>
             </div>
           </div>
@@ -144,4 +136,4 @@ export default connect(
   {
     registerUser
   }
-)(Register);
+)(withRouter(Register));

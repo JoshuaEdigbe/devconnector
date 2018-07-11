@@ -17,11 +17,9 @@ const User = require("../../models/User");
 // @access  Public
 
 router.post("/register", (req, res) => {
-  console.log(req.body)
   const { errors, isValid } = validateRegisterInput(req.body);
 
-
-  if(!isValid) return res.status(400).json(errors)
+  if (!isValid) return res.status(400).json(errors);
 
   const { email, password, name } = req.body,
     avatar = gravatar.url(email, {
@@ -49,7 +47,7 @@ router.post("/register", (req, res) => {
         newUser
           .save()
           .then(user => res.json(user))
-          .catch(err => console.log(err));
+          .catch(err => res.status(404).json(err));
       });
     });
   });
