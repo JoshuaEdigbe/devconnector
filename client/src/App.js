@@ -17,14 +17,18 @@ import EditProfile from "./components/edit-profile/EditProfile";
 
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
+import AddExperience from "./components/add-credentials/AddExperience";
+import AddEducation from "./components/add-credentials/AddEducation";
 
 // Check for token
-if (localStorage.jwtToken) {
-  // Set auth token header auth
-  setAuthToken(localStorage.jwtToken);
 
-  // Decode token header auth
-  const decoded = jwt_decode(localStorage.jwtToken);
+const jwtToken = localStorage.getItem("jwtToken");
+if (jwtToken !== "undefined") {
+  // Set auth token header auth
+  setAuthToken(jwtToken);
+
+  // Decode token and get user info and exp
+  const decoded = jwt_decode(jwtToken);
 
   // Set user and isAuthenticated
   store.dispatch(setCurrentUser(decoded));
@@ -49,11 +53,29 @@ export default class App extends Component {
             <div className="container">
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
-            
+
               <Switch>
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
-                <PrivateRoute exact path="/create-profile" component={CreateProfile} />
-                <PrivateRoute exact path="/edit-profile" component={EditProfile} />
+                <PrivateRoute
+                  exact
+                  path="/create-profile"
+                  component={CreateProfile}
+                />
+                <PrivateRoute
+                  exact
+                  path="/edit-profile"
+                  component={EditProfile}
+                />
+                <PrivateRoute
+                  exact
+                  path="/add-experience"
+                  component={AddExperience}
+                />
+                <PrivateRoute
+                  exact
+                  path="/add-education"
+                  component={AddEducation}
+                />
               </Switch>
             </div>
             <Footer />
